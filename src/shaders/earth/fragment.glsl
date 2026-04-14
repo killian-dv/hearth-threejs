@@ -12,10 +12,15 @@ void main()
     vec3 normal = normalize(vNormal);
     vec3 color = vec3(0.0);
 
+    // sun orientation
+    vec3 uSunDirection = vec3(0.0, 0.0, 1.0);
+    float sunOrientation = dot(uSunDirection, normal);
+
     // day / night color
+    float dayMix = smoothstep(-0.25, 0.5, sunOrientation);
     vec3 dayColor = texture(uDayTexture, vUv).rgb;
     vec3 nightColor = texture(uNightTexture, vUv).rgb;
-    color = dayColor;
+    color = mix(nightColor, dayColor, dayMix);
 
     // Final color
     gl_FragColor = vec4(color, 1.0);
