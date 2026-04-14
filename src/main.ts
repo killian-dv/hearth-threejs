@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import earthFragmentShader from "./shaders/earth/fragment.glsl";
 import earthVertexShader from "./shaders/earth/vertex.glsl";
+import "./style.css";
 
 /**
  * Base
