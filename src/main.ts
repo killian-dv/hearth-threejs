@@ -1,6 +1,8 @@
 import GUI from "lil-gui";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import atmosphereFragmentShader from "./shaders/atmosphere/fragment.glsl";
+import atmosphereVertexShader from "./shaders/atmosphere/vertex.glsl";
 import earthFragmentShader from "./shaders/earth/fragment.glsl";
 import earthVertexShader from "./shaders/earth/vertex.glsl";
 import "./style.css";
@@ -35,9 +37,15 @@ gui.addColor(earthParameters, "atmosphereDayColor").onChange(() => {
   earthMaterial.uniforms.uAtmosphereDayColor.value.set(
     earthParameters.atmosphereDayColor,
   );
+  atmosphereMaterial.uniforms.uAtmosphereDayColor.value.set(
+    earthParameters.atmosphereDayColor,
+  );
 });
 gui.addColor(earthParameters, "atmosphereTwilightColor").onChange(() => {
   earthMaterial.uniforms.uAtmosphereTwilightColor.value.set(
+    earthParameters.atmosphereTwilightColor,
+  );
+  atmosphereMaterial.uniforms.uAtmosphereTwilightColor.value.set(
     earthParameters.atmosphereTwilightColor,
   );
 });
@@ -77,6 +85,26 @@ const earthMaterial = new THREE.ShaderMaterial({
 const earth = new THREE.Mesh(earthGeometry, earthMaterial);
 scene.add(earth);
 
+// atmosphere
+const atmosphereMaterial = new THREE.ShaderMaterial({
+  side: THREE.BackSide,
+  transparent: true,
+  vertexShader: atmosphereVertexShader,
+  fragmentShader: atmosphereFragmentShader,
+  uniforms: {
+    uSunDirection: new THREE.Uniform(new THREE.Vector3(0, 0, 1)),
+    uAtmosphereDayColor: new THREE.Uniform(
+      new THREE.Color(earthParameters.atmosphereDayColor),
+    ),
+    uAtmosphereTwilightColor: new THREE.Uniform(
+      new THREE.Color(earthParameters.atmosphereTwilightColor),
+    ),
+  },
+});
+const atmosphere = new THREE.Mesh(earthGeometry, atmosphereMaterial);
+atmosphere.scale.set(1.04, 1.04, 1.04);
+scene.add(atmosphere);
+
 /**
  * Sun
  */
@@ -97,6 +125,7 @@ const updateSun = () => {
   debugSun.position.copy(sunDirection).multiplyScalar(5);
 
   earthMaterial.uniforms.uSunDirection.value.copy(sunDirection);
+  atmosphereMaterial.uniforms.uSunDirection.value.copy(sunDirection);
 };
 
 updateSun();
